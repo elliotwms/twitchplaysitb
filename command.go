@@ -5,7 +5,6 @@ import (
 	"github.com/go-vgo/robotgo"
 	"strconv"
 	"strings"
-	"fmt"
 )
 
 type Command struct {
@@ -166,47 +165,64 @@ func Parse(t string) *Command {
 
 		ss := r.FindStringSubmatch(t)
 
-		k := "a"
-
-		switch ss[1] {
-		case "mech":
-			switch ss[2] {
-			case "1":
-				k = "a"
-			case "2":
-				k = "s"
-			case "3":
-				k = "d"
-			}
-		case "deployed":
-			switch ss[2] {
-			case "1":
-				k = "f"
-			case "2":
-				k = "g"
-			case "3":
-				k = "h"
-			}
-		case "mission":
-			switch ss[2] {
-			case "1":
-				k = "z"
-			case "2":
-				k = "x"
-			}
-		}
-
 		c.Actions = []Action{
 			{
-				Do: func() {
-					fmt.Printf(k)
-					robotgo.KeyTap(k)
-				},
+				Do: selectUnit(ss[1], ss[2]),
 			},
 		}
 
 		return c
 	}
+
+	// Attack
+	// Attack with a unit using a weapon at a given tile
+	if r := regexp.MustCompile("^attack (mech|deployed|mission) ([1-3]) ([1-2]) ([A-H])([1-8])$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		c.Actions = []Action{
+			{
+				Do: selectUnit(ss[1], ss[2]),
+			},
+			{
+				Do: selectWeapon(ss[3]),
+			},
+			{
+				Do: mouseGrid(ss[4], ss[5]),
+			},
+			{
+				Do: click(),
+			},
+		}
+
+		return c
+	}
+
+	// Repair
+	// Repair a unit at a given tile
+	if r := regexp.MustCompile("^repair ([1-3]) ([A-H])([1-8])$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		c.Actions = []Action{
+			{
+				Do: selectUnit("mech", ss[1]),
+			},
+			{
+				Do: repair(),
+			},
+			{
+				Do: mouseGrid(ss[2], ss[3]),
+			},
+			{
+				Do: click(),
+			},
+		}
+
+		return c
+	}
+
+
 
 	// Calibrate
 	// Moves the mouse from the top left to bottom right corner and around the grid. Used for offset calibration
@@ -257,4 +273,52 @@ func mouseGrid(a string, n string) func() {
 	x, y := GetCoordinates(a, n)
 
 	return mouse(x, y)
+}
+
+func selectUnit(t string, n string) func() {
+	k := "a"
+
+	switch t {
+	case "mech":
+		switch n {
+		case "1":
+			k = "a"
+		case "2":
+			k = "s"
+		case "3":
+			k = "d"
+		}
+	case "deployed":
+		switch n {
+		case "1":
+			k = "f"
+		case "2":
+			k = "g"
+		case "3":
+			k = "h"
+		}
+	case "mission":
+		switch n {
+		case "1":
+			k = "z"
+		case "2":
+			k = "x"
+		}
+	}
+
+	return func() {
+		robotgo.KeyTap(k)
+	}
+}
+
+func selectWeapon(n string) func() {
+	return func() {
+		robotgo.KeyTap(n)
+	}
+}
+
+func repair() func() {
+	return func() {
+		robotgo.KeyTap("r") // Repair
+	}
 }
