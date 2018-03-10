@@ -5,6 +5,7 @@ import (
 	"github.com/go-vgo/robotgo"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 type Command struct {
@@ -66,6 +67,19 @@ func Parse(t string) *Command {
 			{
 				Do: func() {
 					robotgo.KeyTap("backspace")
+				},
+			},
+		}
+
+		return c
+	}
+
+	// Next unit
+	if match, _ := regexp.MatchString("^next$", t); match {
+		c.Actions = []Action{
+			{
+				Do: func() {
+					robotgo.KeyTap("tab")
 				},
 			},
 		}
@@ -140,6 +154,54 @@ func Parse(t string) *Command {
 			},
 			{
 				Do: click(),
+			},
+		}
+
+		return c
+	}
+
+	// Select unit
+	// Select a specific unit by hotkey
+	if r := regexp.MustCompile("^select (mech|deployed|mission) ([1-3])$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		k := "a"
+
+		switch ss[1] {
+		case "mech":
+			switch ss[2] {
+			case "1":
+				k = "a"
+			case "2":
+				k = "s"
+			case "3":
+				k = "d"
+			}
+		case "deployed":
+			switch ss[2] {
+			case "1":
+				k = "f"
+			case "2":
+				k = "g"
+			case "3":
+				k = "h"
+			}
+		case "mission":
+			switch ss[2] {
+			case "1":
+				k = "z"
+			case "2":
+				k = "x"
+			}
+		}
+
+		c.Actions = []Action{
+			{
+				Do: func() {
+					fmt.Printf(k)
+					robotgo.KeyTap(k)
+				},
 			},
 		}
 
