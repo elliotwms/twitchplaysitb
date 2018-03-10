@@ -15,8 +15,6 @@ Set the following environment variables:
 
 ## Chat commands
 
-The following commands have been implemented
-
 Mouse:
 - `click` - Click the mouse
 - `mouse [x] [y]` - Move mouse to given x, y pixel coordinates
@@ -26,9 +24,10 @@ Mouse:
 
 Mechs and units:
 - `select [mech|deployed|mission] [1-3]` - Select mech/deployed/mission unit 1 to 3
+- [ ] `move [mech|deployed|mission] [1-3] [xy]` - Move unit to a given map coordinate
 - `weapon [1-2]` - Select weapon
 - `deselect|disarm` - Deselect / disarm weapon
-- `attack [mech 1-3] [weapon 1-2] [xy]` - Attack with a mech using a weapon at a given map coordinate
+- `attack [mech|deployed|mission] [1-3] [weapon 1-2] [xy]` - Attack with a mech using a weapon at a given map coordinate
 - `repair [mech 1-3] [xy]` - Repair the mech at this map coordinate
 - `next` - Select next unit. Also use `next 2` to select the second next unit and so on
 

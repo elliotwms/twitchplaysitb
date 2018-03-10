@@ -6,11 +6,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 )
 
 type Command struct {
-	Text    string
-	Actions []Action
+	Text        string // The raw command input
+	Description string // The command description
+	Actions     []Action
 }
 
 type Action struct {
@@ -26,17 +28,19 @@ func Parse(t string) *Command {
 
 	// Click
 	if match, _ := regexp.MatchString("^click$", t); match {
+		c.Description = "Click the mouse"
+
 		c.Actions = []Action{
 			{
 				Do: click(),
 			},
 		}
-
-		return c
 	}
 
 	// End turn
 	if match, _ := regexp.MatchString("^endturn$", t); match {
+		c.Description = "End turn"
+
 		c.Actions = []Action{
 			{
 				Do: func() {
@@ -44,12 +48,12 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
 	// Undo move
 	if match, _ := regexp.MatchString("^undo$", t); match {
+		c.Description = "Undo move"
+
 		c.Actions = []Action{
 			{
 				Do: func() {
@@ -57,12 +61,12 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
 	// Reset turn
 	if match, _ := regexp.MatchString("^reset$", t); match {
+		c.Description = "Reset turn"
+
 		c.Actions = []Action{
 			{
 				Do: func() {
@@ -70,12 +74,12 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
 	// Deselect weapon
 	if match, _ := regexp.MatchString("^deselect|disarm$", t); match {
+		c.Description = "Deselect weapon"
+
 		c.Actions = []Action{
 			{
 				Do: func() {
@@ -83,12 +87,12 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
 	// Next unit
 	if match, _ := regexp.MatchString("^next$", t); match {
+		c.Description = "Select next unit"
+
 		c.Actions = []Action{
 			{
 				Do: func() {
@@ -96,16 +100,15 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
-	// Next unit (batch
+	// Next unit (batch)
 	if r := regexp.MustCompile("^next ([2-9])$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
 
 		count, _ := strconv.Atoi(ss[1])
+
+		c.Description = fmt.Sprintf("Select next unit #%d", count)
 
 		c.Actions = []Action{
 			{
@@ -117,8 +120,6 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
 	// Less simple commands
@@ -126,19 +127,18 @@ func Parse(t string) *Command {
 	// Mouse
 	// Moves the mouse to the given coordinates
 	if r := regexp.MustCompile("^mouse ([0-9]*) ([0-9]*)$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
 
 		x, _ := strconv.Atoi(ss[1])
 		y, _ := strconv.Atoi(ss[2])
+
+		c.Description = fmt.Sprintf("Move the mouse to x: %d, y: %d", x, y)
 
 		c.Actions = []Action{
 			{
 				Do: mouse(x, y),
 			},
 		}
-
-		return c
 	}
 
 	// Click
@@ -149,6 +149,8 @@ func Parse(t string) *Command {
 		x, _ := strconv.Atoi(ss[1])
 		y, _ := strconv.Atoi(ss[2])
 
+		c.Description = fmt.Sprintf("Click the mouse at x: %d, y: %d", x, y)
+
 		c.Actions = []Action{
 			{
 				Do: mouse(x, y),
@@ -157,30 +159,28 @@ func Parse(t string) *Command {
 				Do: click(),
 			},
 		}
-
-		return c
 	}
 
 	// Mouse grid
 	// Moves the mouse to the grid reference
 	if r := regexp.MustCompile("^mouse ([A-H])([1-8]*)$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
+
+		c.Description = fmt.Sprintf("Move the mouse to tile %s%s", ss[1], ss[2])
 
 		c.Actions = []Action{
 			{
 				Do: mouseGrid(strings.ToUpper(ss[1]), ss[2]),
 			},
 		}
-
-		return c
 	}
 
 	// Click grid
 	// Moves the mouse to the grid reference and clicks
 	if r := regexp.MustCompile("^click ([A-H])([1-8]*)$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
+
+		c.Description = fmt.Sprintf("Click the mouse at tile %s%s", ss[1], ss[2])
 
 		c.Actions = []Action{
 			{
@@ -190,45 +190,42 @@ func Parse(t string) *Command {
 				Do: click(),
 			},
 		}
-
-		return c
 	}
 
 	// Select unit
 	// Select a specific unit by hotkey
 	if r := regexp.MustCompile("^select (mech|deployed|mission) ([1-3])$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
+
+		c.Description = fmt.Sprintf("Select %s unit #%s", ss[1], ss[2])
 
 		c.Actions = []Action{
 			{
 				Do: selectUnit(ss[1], ss[2]),
 			},
 		}
-
-		return c
 	}
 
 	// Select weapon
 	// Select a specific weapon by hotkey
 	if r := regexp.MustCompile("^weapon ([1-2])$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
+
+		c.Description = fmt.Sprintf("Arm weapon #%s", ss[1])
 
 		c.Actions = []Action{
 			{
 				Do: selectWeapon(ss[1]),
 			},
 		}
-
-		return c
 	}
 
 	// Attack
 	// Attack with a unit using a weapon at a given tile
 	if r := regexp.MustCompile("^attack (mech|deployed|mission) ([1-3]) ([1-2]) ([A-H])([1-8])$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
+
+		c.Description = fmt.Sprintf("Attacking with %s unit #%s using weapon %s on tile %s%s", ss[1], ss[2], ss[3], ss[4], ss[5])
 
 		c.Actions = []Action{
 			{
@@ -244,15 +241,14 @@ func Parse(t string) *Command {
 				Do: click(),
 			},
 		}
-
-		return c
 	}
 
 	// Repair
 	// Repair a unit at a given tile
 	if r := regexp.MustCompile("^repair ([1-3]) ([A-H])([1-8])$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
+
+		c.Description = fmt.Sprintf("Repairing mech #%d at tile %d%d", ss[1], ss[2], ss[3])
 
 		c.Actions = []Action{
 			{
@@ -268,17 +264,13 @@ func Parse(t string) *Command {
 				Do: click(),
 			},
 		}
-
-		return c
 	}
-
 
 	// On-off commands
 
 	// Toggle info
 	// Toggle the info tooltip
 	if r := regexp.MustCompile("^info (on|off)$"); r.MatchString(t) {
-
 		ss := r.FindStringSubmatch(t)
 
 		state := "up"
@@ -287,6 +279,8 @@ func Parse(t string) *Command {
 			state = "down"
 		}
 
+		c.Description = fmt.Sprintf("Turning info tooltip %s", ss[1])
+
 		c.Actions = []Action{
 			{
 				Do: func() {
@@ -294,8 +288,6 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
 	// Toggle turn order
@@ -310,6 +302,8 @@ func Parse(t string) *Command {
 			state = "down"
 		}
 
+		c.Description = fmt.Sprintf("Turning turn order tooltips %s", ss[1])
+
 		c.Actions = []Action{
 			{
 				Do: func() {
@@ -317,8 +311,6 @@ func Parse(t string) *Command {
 				},
 			},
 		}
-
-		return c
 	}
 
 	// Calibration commands
@@ -326,6 +318,8 @@ func Parse(t string) *Command {
 	// Calibrate
 	// Moves the mouse from the top left to bottom right corner and around the grid. Used for offset calibration
 	if match, _ := regexp.MatchString("^calibrate$", t); match {
+		c.Description = "Calibrating"
+
 		c.Actions = []Action{
 			{
 				Do: mouse(0, 0),
@@ -346,34 +340,40 @@ func Parse(t string) *Command {
 				Do: mouseGrid("A", "8"),
 			},
 		}
-
-		return c
 	}
 
-	return nil
+	if len(c.Actions) == 0 {
+		return nil
+	}
+
+	return c
 }
 
 // Commands
 // These commands wrap the action into a callable zero-argument function
 
+// click clicks the mouse
 func click() func() {
 	return func() {
 		robotgo.Click()
 	}
 }
 
+// mouse moves the mouse to a given set of pixel coordinates accounting for the x and y offset
 func mouse(x int, y int) func() {
 	return func() {
 		robotgo.MoveMouseSmooth(x+xOffset, y+yOffset)
 	}
 }
 
+// mouseGrid moves the mouse to a given set of map coordinates
 func mouseGrid(a string, n string) func() {
 	x, y := GetCoordinates(a, n)
 
 	return mouse(x, y)
 }
 
+// selectUnit selects a unit by type and number
 func selectUnit(t string, n string) func() {
 	k := "a"
 
@@ -410,12 +410,14 @@ func selectUnit(t string, n string) func() {
 	}
 }
 
+// selectWeapon selects a weapon by number
 func selectWeapon(n string) func() {
 	return func() {
 		robotgo.KeyTap(n)
 	}
 }
 
+// repair hits the repair shortcut
 func repair() func() {
 	return func() {
 		robotgo.KeyTap("r") // Repair
