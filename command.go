@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"github.com/go-vgo/robotgo"
 	"strconv"
+	"strings"
 )
 
 type Command struct {
@@ -69,6 +70,39 @@ func Parse(t string) *Command {
 		return c
 	}
 
+	// Mouse grid
+	// Moves the mouse to the grid reference
+	if r := regexp.MustCompile("^mouse ([A-H])([1-8]*)$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		c.Actions = []Action{
+			{
+				Do: mouseGrid(strings.ToUpper(ss[1]), ss[2]),
+			},
+		}
+
+		return c
+	}
+
+	// Click grid
+	// Moves the mouse to the grid reference and clicks
+	if r := regexp.MustCompile("^click ([A-H])([1-8]*)$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		c.Actions = []Action{
+			{
+				Do: mouseGrid(strings.ToUpper(ss[1]), ss[2]),
+			},
+			{
+				Do: click(),
+			},
+		}
+
+		return c
+	}
+
 	// Calibrate
 	// Moves the mouse from the top left to bottom right corner and around the grid. Used for offset calibration
 	if match, _ := regexp.MatchString("^calibrate$", t); match {
@@ -83,13 +117,13 @@ func Parse(t string) *Command {
 				Do: mouseGrid("A", "1"),
 			},
 			{
-				Do:mouseGrid("H", "1"),
+				Do: mouseGrid("H", "1"),
 			},
 			{
 				Do: mouseGrid("H", "8"),
 			},
 			{
-				Do:mouseGrid("A", "8"),
+				Do: mouseGrid("A", "8"),
 			},
 		}
 
@@ -110,7 +144,7 @@ func click() func() {
 
 func mouse(x int, y int) func() {
 	return func() {
-		robotgo.MoveMouseSmooth(x + xOffset, y + yOffset)
+		robotgo.MoveMouseSmooth(x+xOffset, y+yOffset)
 	}
 }
 

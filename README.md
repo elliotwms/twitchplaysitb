@@ -23,8 +23,8 @@ Core:
 - [x] `click [x] [y]` - Click at a given x y point (similar to doing `mouse x y` then `click`)
 
 QoL:
-- [ ] `mouse [xy]` - Mouse at map coordinate (requires map coordinates)
-- [ ] `click [xy]` - Click at map coordinate xy
+- [x] `mouse [xy]` - Mouse at map coordinate (requires map coordinates)
+- [x] `click [xy]` - Click at map coordinate xy
 - [ ] `undo` - Undo move
 - [ ] `reset` - Reset turn
 - [ ] `endturn` - End turn
