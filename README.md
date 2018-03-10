@@ -17,24 +17,26 @@ Set the following environment variables:
 
 The following commands have been implemented
 
-Core:
-- [x] `mouse [x] [y]` - Move mouse to given x, y pixel coordinates
-- [x] `click` - Click the mouse
-- [x] `click [x] [y]` - Click at a given x y point (similar to doing `mouse x y` then `click`)
+Mouse:
+- `click` - Click the mouse
+- `mouse [x] [y]` - Move mouse to given x, y pixel coordinates
+- `click [x] [y]` - Click at a given x y point (similar to doing `mouse x y` then `click`)
+- `mouse [xy]` - Mouse at map coordinate
+- `click [xy]` - Click at map coordinate
 
-QoL:
-- [x] `mouse [xy]` - Mouse at map coordinate (requires map coordinates)
-- [x] `click [xy]` - Click at map coordinate xy
-- [x] `undo` - Undo move
-- [x] `reset` - Reset turn
-- [x] `endturn` - End turn
-- [x] `deselect|disarm` - Deselect / disarm weapon
-- [x] `select [mech|deployed|mission] [1-3]` - Select mech/deployed/mission unit 1 to 3
-- [x] `next` - Select next unit. Also use `next 2` to select the second next unit and so on
-- [x] `weapon [1-2]` - Select weapon
-- [x] `attack [mech 1-3] [weapon 1-2] [xy]` - Attack with a mech using a weapon at a given map coordinate
-- [x] `repair [mech 1-3] [xy]` - Repair the mech at this map coordinate
+Mechs and units:
+- `select [mech|deployed|mission] [1-3]` - Select mech/deployed/mission unit 1 to 3
+- `weapon [1-2]` - Select weapon
+- `deselect|disarm` - Deselect / disarm weapon
+- `attack [mech 1-3] [weapon 1-2] [xy]` - Attack with a mech using a weapon at a given map coordinate
+- `repair [mech 1-3] [xy]` - Repair the mech at this map coordinate
+- `next` - Select next unit. Also use `next 2` to select the second next unit and so on
+
+Moves and turns:
+- `undo` - Undo move
+- `reset` - Reset turn
+- `endturn` - End turn
 
 UI:
-- [x] `info [on|off]` - Toggle the info overlay
-- [x] `order [on|off]` - Toggle the attack order overlay
+- `info [on|off]` - Toggle the info overlay
+- `order [on|off]` - Toggle the attack order overlay
