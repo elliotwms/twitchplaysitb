@@ -24,6 +24,8 @@ func main() {
 
 	c := twitch.NewClient(username, token)
 
+	// todo Create and work channel for messages
+
 	c.OnNewMessage(handleMessage(c))
 
 	c.Join(channel)
@@ -40,6 +42,12 @@ func handleMessage(c *twitch.Client) func(channel string, user twitch.User, mess
 	return func(channel string, user twitch.User, message twitch.Message) {
 		fmt.Printf("%s: %s", user.Username, message.Text)
 		c.Say(channel, message.Text)
+
+		// todo Check user hasn't already submitted a command
+
+		// todo Parse command
+
+		// todo If valid command, add to command queue
 	}
 }
 
