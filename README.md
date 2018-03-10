@@ -28,10 +28,10 @@ QoL:
 - [x] `undo` - Undo move
 - [x] `reset` - Reset turn
 - [x] `endturn` - End turn
-- [ ] `deselect` - Deselect / disarm weapon
+- [x] `deselect|disarm` - Deselect / disarm weapon
 - [x] `select [mech|deployed|mission] [1-3]` - Select mech/deployed/mission unit 1 to 3
 - [x] `next` - Select next unit. Also use `next 2` to select the second next unit and so on
-- [ ] `weapon [1-2]` - Select weapon
+- [x] `weapon [1-2]` - Select weapon
 - [x] `attack [mech 1-3] [weapon 1-2] [xy]` - Attack with a mech using a weapon at a given map coordinate
 - [x] `repair [mech 1-3] [xy]` - Repair the mech at this map coordinate
 

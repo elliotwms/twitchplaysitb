@@ -74,6 +74,19 @@ func Parse(t string) *Command {
 		return c
 	}
 
+	// Deselect weapon
+	if match, _ := regexp.MatchString("^deselect|disarm$", t); match {
+		c.Actions = []Action{
+			{
+				Do: func() {
+					robotgo.KeyTap("q")
+				},
+			},
+		}
+
+		return c
+	}
+
 	// Next unit
 	if match, _ := regexp.MatchString("^next$", t); match {
 		c.Actions = []Action{
@@ -190,6 +203,21 @@ func Parse(t string) *Command {
 		c.Actions = []Action{
 			{
 				Do: selectUnit(ss[1], ss[2]),
+			},
+		}
+
+		return c
+	}
+
+	// Select weapon
+	// Select a specific weapon by hotkey
+	if r := regexp.MustCompile("^weapon ([1-2])$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		c.Actions = []Action{
+			{
+				Do: selectWeapon(ss[1]),
 			},
 		}
 
