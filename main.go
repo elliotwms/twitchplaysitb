@@ -56,6 +56,7 @@ func handleMessage(c *twitch.Client) func(channel string, user twitch.User, mess
 		if c != nil {
 			for _, a := range c.Actions {
 				a.Do()
+				time.Sleep(3 * time.Second)
 			}
 		}
 

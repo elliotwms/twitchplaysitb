@@ -69,6 +69,33 @@ func Parse(t string) *Command {
 		return c
 	}
 
+	// Calibrate
+	// Moves the mouse from the top left to bottom right corner and around the grid. Used for offset calibration
+	if match, _ := regexp.MatchString("^calibrate$", t); match {
+		c.Actions = []Action{
+			{
+				Do: mouse(0, 0),
+			},
+			{
+				Do: mouse(1280, 720),
+			},
+			{
+				Do: mouseGrid("A", "1"),
+			},
+			{
+				Do:mouseGrid("H", "1"),
+			},
+			{
+				Do: mouseGrid("H", "8"),
+			},
+			{
+				Do:mouseGrid("A", "8"),
+			},
+		}
+
+		return c
+	}
+
 	return nil
 }
 
@@ -83,6 +110,12 @@ func click() func() {
 
 func mouse(x int, y int) func() {
 	return func() {
-		robotgo.MoveMouseSmooth(x, y)
+		robotgo.MoveMouseSmooth(x + xOffset, y + yOffset)
 	}
+}
+
+func mouseGrid(a string, n string) func() {
+	x, y := GetCoordinates(a, n)
+
+	return mouse(x, y)
 }
