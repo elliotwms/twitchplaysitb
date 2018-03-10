@@ -27,7 +27,7 @@ QoL:
 - [x] `click [xy]` - Click at map coordinate xy
 - [ ] `undo` - Undo move
 - [ ] `reset` - Reset turn
-- [ ] `endturn` - End turn
+- [x] `endturn` - End turn
 - [ ] `deselect` - Deselect / disarm weapon
 - [ ] `select [mech|deployed|mission] [1-3]` - Select mech/deployed/mission unit 1 to 3
 - [ ] `next` - Select next unit. Also use `next 2` to select the second next unit and so on

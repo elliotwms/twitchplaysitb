@@ -21,6 +21,8 @@ func Parse(t string) *Command {
 		Text: t,
 	}
 
+	// Simple commands
+
 	// Click
 	if match, _ := regexp.MatchString("^click$", t); match {
 		c.Actions = []Action{
@@ -31,6 +33,21 @@ func Parse(t string) *Command {
 
 		return c
 	}
+
+	// End turn
+	if match, _ := regexp.MatchString("^endturn$", t); match {
+		c.Actions = []Action{
+			{
+				Do: func() {
+					robotgo.KeyTap("space")
+				},
+			},
+		}
+
+		return c
+	}
+
+	// Less simple commands
 
 	// Mouse
 	// Moves the mouse to the given coordinates
