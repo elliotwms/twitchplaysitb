@@ -36,5 +36,5 @@ QoL:
 - [x] `repair [mech 1-3] [xy]` - Repair the mech at this map coordinate
 
 UI:
-- [ ] `info [on|off]` - Toggle the info overlay
-- [ ] `order [on|off]` - Toggle the attack order overlay
+- [x] `info [on|off]` - Toggle the info overlay
+- [x] `order [on|off]` - Toggle the attack order overlay

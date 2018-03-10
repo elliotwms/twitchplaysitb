@@ -5,6 +5,7 @@ import (
 	"github.com/go-vgo/robotgo"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Command struct {
@@ -79,6 +80,27 @@ func Parse(t string) *Command {
 			{
 				Do: func() {
 					robotgo.KeyTap("tab")
+				},
+			},
+		}
+
+		return c
+	}
+
+	// Next unit (batch
+	if r := regexp.MustCompile("^next ([2-9])$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		count, _ := strconv.Atoi(ss[1])
+
+		c.Actions = []Action{
+			{
+				Do: func() {
+					for i := 0; i < count; i++ {
+						robotgo.KeyTap("tab")
+						time.Sleep(1 * time.Second)
+					}
 				},
 			},
 		}
@@ -223,6 +245,55 @@ func Parse(t string) *Command {
 	}
 
 
+	// On-off commands
+
+	// Toggle info
+	// Toggle the info tooltip
+	if r := regexp.MustCompile("^info (on|off)$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		state := "up"
+
+		if ss[1] == "on" {
+			state = "down"
+		}
+
+		c.Actions = []Action{
+			{
+				Do: func() {
+					robotgo.KeyToggle("control", state)
+				},
+			},
+		}
+
+		return c
+	}
+
+	// Toggle turn order
+	// Toggle the turn order tooltips
+	if r := regexp.MustCompile("^order (on|off)$"); r.MatchString(t) {
+
+		ss := r.FindStringSubmatch(t)
+
+		state := "up"
+
+		if ss[1] == "on" {
+			state = "down"
+		}
+
+		c.Actions = []Action{
+			{
+				Do: func() {
+					robotgo.KeyToggle("alt", state)
+				},
+			},
+		}
+
+		return c
+	}
+
+	// Calibration commands
 
 	// Calibrate
 	// Moves the mouse from the top left to bottom right corner and around the grid. Used for offset calibration
