@@ -40,12 +40,20 @@ func main() {
 
 func handleMessage(c *twitch.Client) func(channel string, user twitch.User, message twitch.Message) {
 	return func(channel string, user twitch.User, message twitch.Message) {
-		fmt.Printf("%s: %s", user.Username, message.Text)
+		fmt.Printf("%s: %s\n", user.Username, message.Text)
 		c.Say(channel, message.Text)
 
 		// todo Check user hasn't already submitted a command
 
 		// todo Parse command
+		c := Parse(message.Text)
+
+		// Just do the commands for now. We'll do queueing later...
+		if c != nil {
+			for _, a := range c.Actions {
+				a.Do()
+			}
+		}
 
 		// todo If valid command, add to command queue
 	}

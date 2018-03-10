@@ -18,9 +18,9 @@ Set the following environment variables:
 The following commands have been implemented
 
 Core:
-- [ ] `mouse [x] [y]` - Move mouse to given x, y pixel coordinates
-- [ ] `click` - Click the mouse
-- [ ] `click [x] [y]` - Click at a given x y point (similar to doing `mouse x y` then `click`)
+- [x] `mouse [x] [y]` - Move mouse to given x, y pixel coordinates
+- [x] `click` - Click the mouse
+- [x] `click [x] [y]` - Click at a given x y point (similar to doing `mouse x y` then `click`)
 
 QoL:
 - [ ] `mouse [xy]` - Mouse at map coordinate (requires map coordinates)
