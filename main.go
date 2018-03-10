@@ -12,6 +12,10 @@ import (
 const xOffset = 0
 const yOffset = 45
 
+const gameWidth = 1280
+const gameHeight = 720
+
+
 func main() {
 	//setUpGame()
 
