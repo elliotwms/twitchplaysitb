@@ -25,8 +25,8 @@ Core:
 QoL:
 - [x] `mouse [xy]` - Mouse at map coordinate (requires map coordinates)
 - [x] `click [xy]` - Click at map coordinate xy
-- [ ] `undo` - Undo move
-- [ ] `reset` - Reset turn
+- [x] `undo` - Undo move
+- [x] `reset` - Reset turn
 - [x] `endturn` - End turn
 - [ ] `deselect` - Deselect / disarm weapon
 - [ ] `select [mech|deployed|mission] [1-3]` - Select mech/deployed/mission unit 1 to 3

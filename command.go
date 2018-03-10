@@ -47,6 +47,32 @@ func Parse(t string) *Command {
 		return c
 	}
 
+	// Undo move
+	if match, _ := regexp.MatchString("^undo$", t); match {
+		c.Actions = []Action{
+			{
+				Do: func() {
+					robotgo.KeyTap("shift")
+				},
+			},
+		}
+
+		return c
+	}
+
+	// Reset turn
+	if match, _ := regexp.MatchString("^reset$", t); match {
+		c.Actions = []Action{
+			{
+				Do: func() {
+					robotgo.KeyTap("backspace")
+				},
+			},
+		}
+
+		return c
+	}
+
 	// Less simple commands
 
 	// Mouse
