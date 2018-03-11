@@ -115,6 +115,7 @@ func workCommands(cq map[string]*Command, c *twitch.Client, channel string, pid 
 	}
 
 	c.Say(channel, fmt.Sprintf("You broke it!"))
+	os.Exit(1)
 }
 
 func getCredentials() (username string, token string, channel string, err error) {
