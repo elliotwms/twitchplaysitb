@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"strconv"
+
 	"github.com/gempir/go-twitch-irc"
 	"github.com/go-vgo/robotgo"
 )
@@ -17,7 +19,27 @@ const gameWidth = 1280
 const gameHeight = 720
 
 func main() {
-	//setUpGame()
+	if len(os.Args) == 1 {
+		fmt.Println("Missing PID argument 1")
+		os.Exit(1)
+	}
+
+	var pid int32
+
+	if p, err := strconv.ParseInt(os.Args[1], 10, 32); err != nil {
+		fmt.Printf(err.Error())
+		os.Exit(1)
+	} else {
+		pid = int32(p)
+	}
+
+	if ok, err := robotgo.PidExists(int32(pid)); !ok {
+		fmt.Printf("Could not find process with ID %s", err.Error())
+		os.Exit(1)
+	}
+
+	// Make the game window active
+	robotgo.ActivePID(int32(pid))
 
 	username, token, channel, err := getCredentials()
 
@@ -30,7 +52,7 @@ func main() {
 
 	cq := make(map[string]*Command)
 
-	go workCommands(cq, c, channel)
+	go workCommands(cq, c, channel, pid)
 
 	c.OnNewMessage(handleMessage(c, cq))
 
@@ -41,7 +63,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 func handleMessage(c *twitch.Client, cq map[string]*Command) func(channel string, user twitch.User, message twitch.Message) {
@@ -57,8 +78,12 @@ func handleMessage(c *twitch.Client, cq map[string]*Command) func(channel string
 	}
 }
 
-func workCommands(cq map[string]*Command, c *twitch.Client, channel string) {
+func workCommands(cq map[string]*Command, c *twitch.Client, channel string, pid int32) {
 	for {
+		if ok, _ := robotgo.PidExists(pid); !ok {
+			break
+		}
+
 		count := len(cq)
 
 		if len(cq) > 0 {
@@ -88,6 +113,8 @@ func workCommands(cq map[string]*Command, c *twitch.Client, channel string) {
 
 		time.Sleep(time.Duration(t) * time.Second)
 	}
+
+	c.Say(channel, fmt.Sprintf("You broke it!"))
 }
 
 func getCredentials() (username string, token string, channel string, err error) {
