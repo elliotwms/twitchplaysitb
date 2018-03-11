@@ -18,13 +18,15 @@ const yOffset = 45
 const gameWidth = 1280
 const gameHeight = 720
 
+var verbose = false
+var turnTime = 60
+var pid int32
+
 func main() {
 	if len(os.Args) == 1 {
 		fmt.Println("Missing PID argument 1")
 		os.Exit(1)
 	}
-
-	var pid int32
 
 	if p, err := strconv.ParseInt(os.Args[1], 10, 32); err != nil {
 		fmt.Printf(err.Error())
@@ -33,7 +35,7 @@ func main() {
 		pid = int32(p)
 	}
 
-	if ok, err := robotgo.PidExists(int32(pid)); !ok {
+	if ok, err := robotgo.PidExists(pid); !ok {
 		fmt.Printf("Could not find process with ID %s", err.Error())
 		os.Exit(1)
 	}
@@ -89,10 +91,12 @@ func workCommands(cq map[string]*Command, c *twitch.Client, channel string, pid 
 		if len(cq) > 0 {
 			results := tallyVotes(cq)
 
-			c.Say(channel, fmt.Sprintf("Processing %d votes for %d actions\n", count, len(results)))
+			if verbose {
+				c.Say(channel, fmt.Sprintf("Processing %d votes for %d actions\n", count, len(results)))
 
-			for _, r := range results {
-				c.Say(channel, fmt.Sprintf("%s: %d votes\n", r.Command.Description, r.Votes))
+				for _, r := range results {
+					c.Say(channel, fmt.Sprintf("%s: %d votes\n", r.Command.Description, r.Votes))
+				}
 			}
 
 			result := getWinningVote(results)
@@ -107,7 +111,7 @@ func workCommands(cq map[string]*Command, c *twitch.Client, channel string, pid 
 			c.Say(channel, "No votes to process")
 		}
 
-		t := 30 // todo adjust time
+		t := turnTime // todo adjust time
 
 		c.Say(channel, fmt.Sprintf("Next command in %d seconds", t))
 
@@ -138,27 +142,4 @@ func getCredentials() (username string, token string, channel string, err error)
 	}
 
 	return username, token, channel, nil
-}
-
-func setUpGame() {
-	ok := robotgo.ShowAlert("Into The Twitch", "Move your app to the top left of the screen and set the resolution to \"Default Windowed\"")
-
-	if ok == 1 {
-		os.Exit(1)
-	}
-
-	robotgo.ActiveName("IntoTheBreach")
-
-	bmp := robotgo.CaptureScreen(xOffset, yOffset, 1280, 720)
-	robotgo.SaveBitmap(bmp, "test.png")
-
-	// Mouse over New Game
-	robotgo.MoveMouseSmooth(xOffset+150, yOffset+280)
-
-	// Focus window
-	robotgo.Click()
-	time.Sleep(1 * time.Second)
-
-	// New Game
-	robotgo.Click()
 }
