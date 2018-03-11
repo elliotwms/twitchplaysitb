@@ -1,12 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"github.com/gempir/go-twitch-irc"
-	"github.com/go-vgo/robotgo"
 	"os"
 	"time"
-	"errors"
+
+	"github.com/gempir/go-twitch-irc"
+	"github.com/go-vgo/robotgo"
 )
 
 const xOffset = 0
@@ -14,7 +15,6 @@ const yOffset = 45
 
 const gameWidth = 1280
 const gameHeight = 720
-
 
 func main() {
 	//setUpGame()
@@ -28,9 +28,11 @@ func main() {
 
 	c := twitch.NewClient(username, token)
 
-	// todo Create and work channel for messages
+	cq := make(map[string]*Command)
 
-	c.OnNewMessage(handleMessage(c))
+	go workCommands(cq)
+
+	c.OnNewMessage(handleMessage(c, cq))
 
 	c.Join(channel)
 
@@ -42,28 +44,38 @@ func main() {
 
 }
 
-func handleMessage(c *twitch.Client) func(channel string, user twitch.User, message twitch.Message) {
+func handleMessage(c *twitch.Client, cq map[string]*Command) func(channel string, user twitch.User, message twitch.Message) {
 	return func(channel string, user twitch.User, message twitch.Message) {
 		fmt.Printf("%s: %s\n", user.Username, message.Text)
 
-		// todo Check user hasn't already submitted a command
-
-		// todo Parse command
 		command := Parse(message.Text)
 
-		// Just do the commands for now. We'll do queueing later...
 		if command != nil {
-			// Broadcast the command
-			c.Say(channel, command.Description)
-			fmt.Println(command.Description)
+			// Add the command to the command queue
+			cq[user.Username] = command
+		}
+	}
+}
 
-			for _, a := range command.Actions {
-				a.Do()
-				time.Sleep(3 * time.Second)
+func workCommands(cq map[string]*Command) {
+	for {
+		count := len(cq)
+
+		if len(cq) > 0 {
+			results := tallyVotes(cq)
+
+			fmt.Printf("Processing %d votes for %d actions", count, len(results))
+
+			for _, r := range results {
+				fmt.Printf("%s: %d votes\n", r.Command.Description, r.Votes)
 			}
+
+			// todo get most voted for command
+		} else {
+			fmt.Println("No votes to process")
 		}
 
-		// todo If valid command, add to command queue
+		time.Sleep(30 * time.Second)
 	}
 }
 

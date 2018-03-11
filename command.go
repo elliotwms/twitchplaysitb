@@ -1,18 +1,26 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
-	"github.com/go-vgo/robotgo"
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
+
+	"crypto/md5"
+
+	"github.com/go-vgo/robotgo"
 )
 
 type Command struct {
 	Text        string // The raw command input
 	Description string // The command description
 	Actions     []Action
+}
+
+// GetHash hashes the command description (which should be unique depending on the command arguments)
+func (c *Command) GetHash() string {
+	return fmt.Sprintf("%x", md5.Sum([]byte(c.Description)))
 }
 
 type Action struct {

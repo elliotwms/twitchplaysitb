@@ -1,9 +1,10 @@
 package main
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetCredentials(t *testing.T) {
