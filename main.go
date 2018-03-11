@@ -70,7 +70,12 @@ func workCommands(cq map[string]*Command) {
 				fmt.Printf("%s: %d votes\n", r.Command.Description, r.Votes)
 			}
 
-			// todo get most voted for command
+			result := getWinningVote(results)
+
+			for _, action := range result.Command.Actions {
+				action.Do()
+			}
+
 		} else {
 			fmt.Println("No votes to process")
 		}

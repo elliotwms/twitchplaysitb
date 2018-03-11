@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type VoteResult struct {
 	Command *Command
@@ -61,5 +64,7 @@ func tallyVotes(cq map[string]*Command) VoteResultList {
 }
 
 func getWinningVote(list VoteResultList) VoteResult {
-	return list[0] //todo
+	sort.Sort(sort.Reverse(list))
+
+	return list[0]
 }
