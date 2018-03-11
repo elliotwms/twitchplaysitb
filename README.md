@@ -24,7 +24,7 @@ Mouse:
 
 Mechs and units:
 - `select [mech|deployed|mission] [1-3]` - Select mech/deployed/mission unit 1 to 3
-- [ ] `move [mech|deployed|mission] [1-3] [xy]` - Move unit to a given map coordinate
+- `move [mech|deployed|mission] [1-3] [xy]` - Move unit to a given map coordinate
 - `weapon [1-2]` - Select weapon
 - `deselect|disarm` - Deselect / disarm weapon
 - `attack [mech|deployed|mission] [1-3] [weapon 1-2] [xy]` - Attack with a mech using a weapon at a given map coordinate

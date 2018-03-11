@@ -206,6 +206,26 @@ func Parse(t string) *Command {
 		}
 	}
 
+	// Move unit
+	// Move a specific unit to a given map coordinate
+	if r := regexp.MustCompile("^move (mech|deployed|mission) ([1-3]) ([A-H])([1-8])$"); r.MatchString(t) {
+		ss := r.FindStringSubmatch(t)
+
+		c.Description = fmt.Sprintf("Move %s unit #%s to %s%s", ss[1], ss[2], ss[3], ss[4])
+
+		c.Actions = []Action{
+			{
+				Do: selectUnit(ss[1], ss[2]),
+			},
+			{
+				Do: mouseGrid(ss[3], ss[4]),
+			},
+			{
+				Do: click(),
+			},
+		}
+	}
+
 	// Select weapon
 	// Select a specific weapon by hotkey
 	if r := regexp.MustCompile("^weapon ([1-2])$"); r.MatchString(t) {
