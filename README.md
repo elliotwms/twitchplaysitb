@@ -13,6 +13,8 @@ Set the following environment variables:
 - `TWITCH_TOKEN` - OAuth token of the Bot, starting with `oauth:`
 - `TWITCH_CHANNEL` - Stream channel name
 
+To run the bot you'll need to pass the running game's process ID as the first argument.
+
 ## Chat commands
 
 Mouse:
