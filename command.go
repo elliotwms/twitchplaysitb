@@ -32,6 +32,8 @@ func Parse(t string) *Command {
 		Text: t,
 	}
 
+	t = strings.ToLower(t) // lower case all commands
+
 	// Simple commands
 
 	// Click
@@ -171,24 +173,30 @@ func Parse(t string) *Command {
 
 	// Mouse grid
 	// Moves the mouse to the grid reference
-	if r := regexp.MustCompile("^mouse ([A-H])([1-8]*)$"); r.MatchString(t) {
+	if r := regexp.MustCompile("^mouse ([a-h])([1-8]*)$"); r.MatchString(t) {
 		ss := r.FindStringSubmatch(t)
 
-		c.Description = fmt.Sprintf("Move the mouse to tile %s%s", ss[1], ss[2])
+		x := strings.ToUpper(ss[1])
+		y := ss[2]
+
+		c.Description = fmt.Sprintf("Move the mouse to tile %s%s", x, y)
 
 		c.Actions = []Action{
 			{
-				Do: mouseGrid(strings.ToUpper(ss[1]), ss[2]),
+				Do: mouseGrid(x, y),
 			},
 		}
 	}
 
 	// Click grid
 	// Moves the mouse to the grid reference and clicks
-	if r := regexp.MustCompile("^click ([A-H])([1-8]*)$"); r.MatchString(t) {
+	if r := regexp.MustCompile("^click ([a-h])([1-8]*)$"); r.MatchString(t) {
 		ss := r.FindStringSubmatch(t)
 
-		c.Description = fmt.Sprintf("Click the mouse at tile %s%s", ss[1], ss[2])
+		x := strings.ToUpper(ss[1])
+		y := ss[2]
+
+		c.Description = fmt.Sprintf("Click the mouse at tile %s%s", x, y)
 
 		c.Actions = []Action{
 			{
@@ -216,17 +224,20 @@ func Parse(t string) *Command {
 
 	// Move unit
 	// Move a specific unit to a given map coordinate
-	if r := regexp.MustCompile("^move (mech|deployed|mission) ([1-3]) ([A-H])([1-8])$"); r.MatchString(t) {
+	if r := regexp.MustCompile("^move (mech|deployed|mission) ([1-3]) ([a-h])([1-8])$"); r.MatchString(t) {
 		ss := r.FindStringSubmatch(t)
 
-		c.Description = fmt.Sprintf("Move %s unit #%s to %s%s", ss[1], ss[2], ss[3], ss[4])
+		x := strings.ToUpper(ss[3])
+		y := ss[4]
+
+		c.Description = fmt.Sprintf("Move %s unit #%s to %s%s", ss[1], ss[2], x, y)
 
 		c.Actions = []Action{
 			{
 				Do: selectUnit(ss[1], ss[2]),
 			},
 			{
-				Do: mouseGrid(ss[3], ss[4]),
+				Do: mouseGrid(x, y),
 			},
 			{
 				Do: click(),
@@ -250,10 +261,13 @@ func Parse(t string) *Command {
 
 	// Attack
 	// Attack with a unit using a weapon at a given tile
-	if r := regexp.MustCompile("^attack (mech|deployed|mission) ([1-3]) ([1-2]) ([A-H])([1-8])$"); r.MatchString(t) {
+	if r := regexp.MustCompile("^attack (mech|deployed|mission) ([1-3]) ([1-2]) ([a-h])([1-8])$"); r.MatchString(t) {
 		ss := r.FindStringSubmatch(t)
 
-		c.Description = fmt.Sprintf("Attacking with %s unit #%s using weapon %s on tile %s%s", ss[1], ss[2], ss[3], ss[4], ss[5])
+		x := strings.ToUpper(ss[4])
+		y := ss[5]
+
+		c.Description = fmt.Sprintf("Attacking with %s unit #%s using weapon %s on tile %s%s", ss[1], ss[2], ss[3], x, y)
 
 		c.Actions = []Action{
 			{
@@ -263,7 +277,7 @@ func Parse(t string) *Command {
 				Do: selectWeapon(ss[3]),
 			},
 			{
-				Do: mouseGrid(ss[4], ss[5]),
+				Do: mouseGrid(x, y),
 			},
 			{
 				Do: click(),
@@ -273,10 +287,13 @@ func Parse(t string) *Command {
 
 	// Repair
 	// Repair a unit at a given tile
-	if r := regexp.MustCompile("^repair ([1-3]) ([A-H])([1-8])$"); r.MatchString(t) {
+	if r := regexp.MustCompile("^repair ([1-3]) ([a-h])([1-8])$"); r.MatchString(t) {
 		ss := r.FindStringSubmatch(t)
 
-		c.Description = fmt.Sprintf("Repairing mech #%d at tile %d%d", ss[1], ss[2], ss[3])
+		x := strings.ToUpper(ss[2])
+		y := ss[3]
+
+		c.Description = fmt.Sprintf("Repairing mech #%d at tile %d%d", ss[1], x, y)
 
 		c.Actions = []Action{
 			{
@@ -286,7 +303,7 @@ func Parse(t string) *Command {
 				Do: repair(),
 			},
 			{
-				Do: mouseGrid(ss[2], ss[3]),
+				Do: mouseGrid(x, y),
 			},
 			{
 				Do: click(),
