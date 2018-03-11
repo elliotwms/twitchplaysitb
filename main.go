@@ -30,7 +30,7 @@ func main() {
 
 	cq := make(map[string]*Command)
 
-	go workCommands(cq)
+	go workCommands(cq, c, channel)
 
 	c.OnNewMessage(handleMessage(c, cq))
 
@@ -57,32 +57,36 @@ func handleMessage(c *twitch.Client, cq map[string]*Command) func(channel string
 	}
 }
 
-func workCommands(cq map[string]*Command) {
+func workCommands(cq map[string]*Command, c *twitch.Client, channel string) {
 	for {
 		count := len(cq)
 
 		if len(cq) > 0 {
 			results := tallyVotes(cq)
 
-			fmt.Printf("Processing %d votes for %d actions\n", count, len(results))
+			c.Say(channel, fmt.Sprintf("Processing %d votes for %d actions\n", count, len(results)))
 
 			for _, r := range results {
-				fmt.Printf("%s: %d votes\n", r.Command.Description, r.Votes)
+				c.Say(channel, fmt.Sprintf("%s: %d votes\n", r.Command.Description, r.Votes))
 			}
 
 			result := getWinningVote(results)
 
-			fmt.Printf("Result: %s\n", result.Command.Description)
+			c.Say(channel, fmt.Sprintf("Result: %s\n", result.Command.Description))
 
 			for _, action := range result.Command.Actions {
 				action.Do()
 			}
 
 		} else {
-			fmt.Println("No votes to process")
+			c.Say(channel, "No votes to process")
 		}
 
-		time.Sleep(30 * time.Second)
+		t := 30 // todo adjust time
+
+		c.Say(channel, fmt.Sprintf("Next command in %d seconds", t))
+
+		time.Sleep(time.Duration(t) * time.Second)
 	}
 }
 
