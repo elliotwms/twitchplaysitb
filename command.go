@@ -389,6 +389,16 @@ func click() func() {
 
 // mouse moves the mouse to a given set of pixel coordinates accounting for the x and y offset
 func mouse(x int, y int) func() {
+	// Prevent moving out of bounds on the x axis
+	if x > gameWidth {
+		x = gameWidth - 100 // with a safety buffer of 100px
+	}
+
+	// Do the same on the y axis
+	if y > gameHeight {
+		y = gameHeight - 100
+	}
+
 	return func() {
 		robotgo.MoveMouseSmooth(x+xOffset, y+yOffset)
 	}

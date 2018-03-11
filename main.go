@@ -64,13 +64,15 @@ func workCommands(cq map[string]*Command) {
 		if len(cq) > 0 {
 			results := tallyVotes(cq)
 
-			fmt.Printf("Processing %d votes for %d actions", count, len(results))
+			fmt.Printf("Processing %d votes for %d actions\n", count, len(results))
 
 			for _, r := range results {
 				fmt.Printf("%s: %d votes\n", r.Command.Description, r.Votes)
 			}
 
 			result := getWinningVote(results)
+
+			fmt.Printf("Result: %s\n", result.Command.Description)
 
 			for _, action := range result.Command.Actions {
 				action.Do()
