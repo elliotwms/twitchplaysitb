@@ -271,32 +271,19 @@ func Parse(t string) *commands.Command {
 
 // getUnitKey returns a unit key by type and number
 func getUnitKey(t, n string) string {
-	switch t {
-	case "mech":
-		switch n {
-		case "1":
-			return "a"
-		case "2":
-			return "s"
-		case "3":
-			return "d"
-		}
-	case "deployed":
-		switch n {
-		case "1":
-			return "f"
-		case "2":
-			return "g"
-		case "3":
-			return "h"
-		}
-	case "mission":
-		switch n {
-		case "1":
-			return "z"
-		case "2":
-			return "x"
-		}
+	keys := map[string]string{
+		"mech1":     "a",
+		"mech2":     "s",
+		"mech3":     "d",
+		"deployed1": "f",
+		"deployed2": "g",
+		"deployed3": "h",
+		"mission1":  "z",
+		"mission2":  "x",
+	}
+
+	if val, ok := keys[fmt.Sprintf("%s%s", t, n)]; ok {
+		return val
 	}
 
 	return "a"
