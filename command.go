@@ -1,13 +1,12 @@
 package main
 
 import (
+	"crypto/md5"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-
-	"crypto/md5"
 
 	"github.com/go-vgo/robotgo"
 )

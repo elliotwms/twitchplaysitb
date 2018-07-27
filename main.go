@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"time"
-
 	"strconv"
 
 	"github.com/gempir/go-twitch-irc"
