@@ -6,21 +6,19 @@ import (
 )
 
 type RobotGoDriver struct {
-	gameWidth          int
-	gameHeight         int
-	xOffset            int
-	yOffset            int
-	coordinateResolver CoordinateResolver
+	gameWidth  int
+	gameHeight int
+	xOffset    int
+	yOffset    int
 }
 
 // New creates a new instance of the RobotGoDriver
-func NewRobotGoDriver(gameWidth, gameHeight, xOffset, yOffset int, resolver CoordinateResolver) *RobotGoDriver {
+func NewRobotGoDriver(gameWidth, gameHeight, xOffset, yOffset int) *RobotGoDriver {
 	return &RobotGoDriver{
-		gameWidth:          gameWidth,
-		gameHeight:         gameHeight,
-		xOffset:            xOffset,
-		yOffset:            yOffset,
-		coordinateResolver: resolver,
+		gameWidth:  gameWidth,
+		gameHeight: gameHeight,
+		xOffset:    xOffset,
+		yOffset:    yOffset,
 	}
 }
 
@@ -46,13 +44,6 @@ func (d *RobotGoDriver) Mouse(x int, y int) commands.Action {
 	return func() {
 		robotgo.MoveMouseSmooth(x+d.xOffset, y+d.yOffset)
 	}
-}
-
-// mouseGrid moves the mouse to a given set of map coordinates
-func (d *RobotGoDriver) MouseGrid(a string, n string) commands.Action {
-	x, y := d.coordinateResolver(a, n)
-
-	return d.Mouse(x, y)
 }
 
 // pressKey taps a key

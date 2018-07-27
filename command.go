@@ -12,7 +12,7 @@ import (
 )
 
 func Parse(t string) *commands.Command {
-	driver := drivers.NewRobotGoDriver(gameWidth, gameHeight, xOffset, yOffset, GetCoordinates)
+	driver := drivers.NewRobotGoDriver(gameWidth, gameHeight, xOffset, yOffset)
 
 	// lower case all commands to normalize them
 	t = strings.ToLower(t)
@@ -129,7 +129,7 @@ func Parse(t string) *commands.Command {
 
 		c.Description = fmt.Sprintf("Move the mouse to tile %s%s", x, y)
 		c.Actions = []commands.Action{
-			driver.MouseGrid(x, y),
+			driver.Mouse(GetCoordinates(x, y)),
 		}
 	}
 
@@ -143,7 +143,7 @@ func Parse(t string) *commands.Command {
 
 		c.Description = fmt.Sprintf("Click the mouse at tile %s%s", x, y)
 		c.Actions = []commands.Action{
-			driver.MouseGrid(strings.ToUpper(ss[1]), ss[2]),
+			driver.Mouse(GetCoordinates(strings.ToUpper(ss[1]), ss[2])),
 			driver.Click(),
 		}
 	}
@@ -170,7 +170,7 @@ func Parse(t string) *commands.Command {
 		c.Description = fmt.Sprintf("Move %s unit #%s to %s%s", ss[1], ss[2], x, y)
 		c.Actions = []commands.Action{
 			driver.PressKey(getUnitKey(ss[1], ss[2])),
-			driver.MouseGrid(x, y),
+			driver.Mouse(GetCoordinates(x, y)),
 			driver.Click(),
 		}
 	}
@@ -198,7 +198,7 @@ func Parse(t string) *commands.Command {
 		c.Actions = []commands.Action{
 			driver.PressKey(getUnitKey(ss[1], ss[2])),
 			driver.PressKey(ss[3]),
-			driver.MouseGrid(x, y),
+			driver.Mouse(GetCoordinates(x, y)),
 			driver.Click(),
 		}
 	}
@@ -215,7 +215,7 @@ func Parse(t string) *commands.Command {
 		c.Actions = []commands.Action{
 			driver.PressKey(getUnitKey("mech", ss[1])),
 			driver.PressKey("r"),
-			driver.MouseGrid(x, y),
+			driver.Mouse(GetCoordinates(x, y)),
 			driver.Click(),
 		}
 	}
@@ -255,10 +255,10 @@ func Parse(t string) *commands.Command {
 		c.Actions = []commands.Action{
 			driver.Mouse(0, 0),
 			driver.Mouse(1280, 720),
-			driver.MouseGrid("A", "1"),
-			driver.MouseGrid("H", "1"),
-			driver.MouseGrid("H", "8"),
-			driver.MouseGrid("A", "8"),
+			driver.Mouse(GetCoordinates("A", "1")),
+			driver.Mouse(GetCoordinates("H", "1")),
+			driver.Mouse(GetCoordinates("H", "8")),
+			driver.Mouse(GetCoordinates("A", "8")),
 		}
 	}
 
