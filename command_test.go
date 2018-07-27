@@ -8,8 +8,10 @@ import (
 
 func TestParse(t *testing.T) {
 	c := Parse("click")
-
 	assert.NotNil(t, c)
+
+	c = Parse("404")
+	assert.Nil(t, c)
 }
 
 func TestGetUnitKey(t *testing.T) {
