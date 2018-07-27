@@ -38,43 +38,6 @@ func mouseGrid(a string, n string) Action {
 	return mouse(x, y)
 }
 
-// selectUnit selects a unit by type and number
-func selectUnit(t string, n string) Action {
-	k := "a"
-
-	switch t {
-	case "mech":
-		switch n {
-		case "1":
-			k = "a"
-		case "2":
-			k = "s"
-		case "3":
-			k = "d"
-		}
-	case "deployed":
-		switch n {
-		case "1":
-			k = "f"
-		case "2":
-			k = "g"
-		case "3":
-			k = "h"
-		}
-	case "mission":
-		switch n {
-		case "1":
-			k = "z"
-		case "2":
-			k = "x"
-		}
-	}
-
-	return func() {
-		pressKey(k)
-	}
-}
-
 // pressKey taps a key
 func pressKey(k string) Action {
 	return func() {

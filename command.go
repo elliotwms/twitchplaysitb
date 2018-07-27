@@ -162,7 +162,7 @@ func Parse(t string) *Command {
 
 		c.Description = fmt.Sprintf("Select %s unit #%s", ss[1], ss[2])
 		c.Actions = []Action{
-			selectUnit(ss[1], ss[2]),
+			pressKey(getUnitKey(ss[1], ss[2])),
 		}
 	}
 
@@ -176,7 +176,7 @@ func Parse(t string) *Command {
 
 		c.Description = fmt.Sprintf("Move %s unit #%s to %s%s", ss[1], ss[2], x, y)
 		c.Actions = []Action{
-			selectUnit(ss[1], ss[2]),
+			pressKey(getUnitKey(ss[1], ss[2])),
 			mouseGrid(x, y),
 			click(),
 		}
@@ -203,7 +203,7 @@ func Parse(t string) *Command {
 
 		c.Description = fmt.Sprintf("Attacking with %s unit #%s using weapon %s on tile %s%s", ss[1], ss[2], ss[3], x, y)
 		c.Actions = []Action{
-			selectUnit(ss[1], ss[2]),
+			pressKey(getUnitKey(ss[1], ss[2])),
 			pressKey(ss[3]),
 			mouseGrid(x, y),
 			click(),
@@ -220,7 +220,7 @@ func Parse(t string) *Command {
 
 		c.Description = fmt.Sprintf("Repairing mech #%d at tile %d%d", ss[1], x, y)
 		c.Actions = []Action{
-			selectUnit("mech", ss[1]),
+			pressKey(getUnitKey("mech", ss[1])),
 			pressKey("r"),
 			mouseGrid(x, y),
 			click(),
@@ -274,4 +274,37 @@ func Parse(t string) *Command {
 	}
 
 	return c
+}
+
+// getUnitKey returns a unit key by type and number
+func getUnitKey(t, n string) string {
+	switch t {
+	case "mech":
+		switch n {
+		case "1":
+			return "a"
+		case "2":
+			return "s"
+		case "3":
+			return "d"
+		}
+	case "deployed":
+		switch n {
+		case "1":
+			return "f"
+		case "2":
+			return "g"
+		case "3":
+			return "h"
+		}
+	case "mission":
+		switch n {
+		case "1":
+			return "z"
+		case "2":
+			return "x"
+		}
+	}
+
+	return "a"
 }
