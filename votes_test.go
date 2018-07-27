@@ -4,11 +4,12 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/elliotwms/twitchplaysitb/commands"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTallyVotes(t *testing.T) {
-	commands := map[string]*Command{
+	commands := map[string]*commands.Command{
 		"foo": {Description: "click"},
 		"bar": {Description: "mouse 100 100"},
 		"baz": {Description: "click"},

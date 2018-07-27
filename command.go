@@ -1,30 +1,23 @@
 package main
 
 import (
-	"crypto/md5"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/elliotwms/twitchplaysitb/commands"
+	"github.com/elliotwms/twitchplaysitb/drivers"
 )
 
-type Command struct {
-	Text        string   // The raw command input
-	Description string   // The command description
-	Actions     []Action // The actions to perform when executing the command
-}
+func Parse(t string) *commands.Command {
+	driver := drivers.NewRobotGoDriver(gameWidth, gameHeight, xOffset, yOffset, GetCoordinates)
 
-// GetHash hashes the command description (which should be unique depending on the command arguments)
-func (c *Command) GetHash() string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(c.Description)))
-}
-
-func Parse(t string) *Command {
 	// lower case all commands to normalize them
 	t = strings.ToLower(t)
 
-	c := &Command{
+	c := &commands.Command{
 		Text: t,
 	}
 
@@ -33,48 +26,48 @@ func Parse(t string) *Command {
 	// Click
 	if match, _ := regexp.MatchString("^click$", t); match {
 		c.Description = "Click the mouse"
-		c.Actions = []Action{
-			click(),
+		c.Actions = []commands.Action{
+			driver.Click(),
 		}
 	}
 
 	// End turn
 	if match, _ := regexp.MatchString("^endturn$", t); match {
 		c.Description = "End turn"
-		c.Actions = []Action{
-			pressKey("space"),
+		c.Actions = []commands.Action{
+			driver.PressKey("space"),
 		}
 	}
 
 	// Undo move
 	if match, _ := regexp.MatchString("^undo$", t); match {
 		c.Description = "Undo move"
-		c.Actions = []Action{
-			pressKey("shift"),
+		c.Actions = []commands.Action{
+			driver.PressKey("shift"),
 		}
 	}
 
 	// Reset turn
 	if match, _ := regexp.MatchString("^reset$", t); match {
 		c.Description = "Reset turn"
-		c.Actions = []Action{
-			pressKey("backspace"),
+		c.Actions = []commands.Action{
+			driver.PressKey("backspace"),
 		}
 	}
 
 	// Deselect weapon
 	if match, _ := regexp.MatchString("^deselect|disarm$", t); match {
 		c.Description = "Deselect weapon"
-		c.Actions = []Action{
-			pressKey("q"),
+		c.Actions = []commands.Action{
+			driver.PressKey("q"),
 		}
 	}
 
 	// Next unit
 	if match, _ := regexp.MatchString("^next$", t); match {
 		c.Description = "Select next unit"
-		c.Actions = []Action{
-			pressKey("tab"),
+		c.Actions = []commands.Action{
+			driver.PressKey("tab"),
 		}
 	}
 
@@ -85,10 +78,10 @@ func Parse(t string) *Command {
 		count, _ := strconv.Atoi(ss[1])
 
 		c.Description = fmt.Sprintf("Select next unit #%d", count)
-		c.Actions = []Action{
+		c.Actions = []commands.Action{
 			func() {
 				for i := 0; i < count; i++ {
-					pressKey("tab")()
+					driver.PressKey("tab")()
 					time.Sleep(1 * time.Second)
 				}
 			},
@@ -106,8 +99,8 @@ func Parse(t string) *Command {
 		y, _ := strconv.Atoi(ss[2])
 
 		c.Description = fmt.Sprintf("Move the mouse to x: %d, y: %d", x, y)
-		c.Actions = []Action{
-			mouse(x, y),
+		c.Actions = []commands.Action{
+			driver.Mouse(x, y),
 		}
 	}
 
@@ -120,9 +113,9 @@ func Parse(t string) *Command {
 		y, _ := strconv.Atoi(ss[2])
 
 		c.Description = fmt.Sprintf("Click the mouse at x: %d, y: %d", x, y)
-		c.Actions = []Action{
-			mouse(x, y),
-			click(),
+		c.Actions = []commands.Action{
+			driver.Mouse(x, y),
+			driver.Click(),
 		}
 	}
 
@@ -135,8 +128,8 @@ func Parse(t string) *Command {
 		y := ss[2]
 
 		c.Description = fmt.Sprintf("Move the mouse to tile %s%s", x, y)
-		c.Actions = []Action{
-			mouseGrid(x, y),
+		c.Actions = []commands.Action{
+			driver.MouseGrid(x, y),
 		}
 	}
 
@@ -149,9 +142,9 @@ func Parse(t string) *Command {
 		y := ss[2]
 
 		c.Description = fmt.Sprintf("Click the mouse at tile %s%s", x, y)
-		c.Actions = []Action{
-			mouseGrid(strings.ToUpper(ss[1]), ss[2]),
-			click(),
+		c.Actions = []commands.Action{
+			driver.MouseGrid(strings.ToUpper(ss[1]), ss[2]),
+			driver.Click(),
 		}
 	}
 
@@ -161,8 +154,8 @@ func Parse(t string) *Command {
 		ss := r.FindStringSubmatch(t)
 
 		c.Description = fmt.Sprintf("Select %s unit #%s", ss[1], ss[2])
-		c.Actions = []Action{
-			pressKey(getUnitKey(ss[1], ss[2])),
+		c.Actions = []commands.Action{
+			driver.PressKey(getUnitKey(ss[1], ss[2])),
 		}
 	}
 
@@ -175,10 +168,10 @@ func Parse(t string) *Command {
 		y := ss[4]
 
 		c.Description = fmt.Sprintf("Move %s unit #%s to %s%s", ss[1], ss[2], x, y)
-		c.Actions = []Action{
-			pressKey(getUnitKey(ss[1], ss[2])),
-			mouseGrid(x, y),
-			click(),
+		c.Actions = []commands.Action{
+			driver.PressKey(getUnitKey(ss[1], ss[2])),
+			driver.MouseGrid(x, y),
+			driver.Click(),
 		}
 	}
 
@@ -188,8 +181,8 @@ func Parse(t string) *Command {
 		ss := r.FindStringSubmatch(t)
 
 		c.Description = fmt.Sprintf("Arm weapon #%s", ss[1])
-		c.Actions = []Action{
-			pressKey(ss[1]),
+		c.Actions = []commands.Action{
+			driver.PressKey(ss[1]),
 		}
 	}
 
@@ -202,11 +195,11 @@ func Parse(t string) *Command {
 		y := ss[5]
 
 		c.Description = fmt.Sprintf("Attacking with %s unit #%s using weapon %s on tile %s%s", ss[1], ss[2], ss[3], x, y)
-		c.Actions = []Action{
-			pressKey(getUnitKey(ss[1], ss[2])),
-			pressKey(ss[3]),
-			mouseGrid(x, y),
-			click(),
+		c.Actions = []commands.Action{
+			driver.PressKey(getUnitKey(ss[1], ss[2])),
+			driver.PressKey(ss[3]),
+			driver.MouseGrid(x, y),
+			driver.Click(),
 		}
 	}
 
@@ -219,11 +212,11 @@ func Parse(t string) *Command {
 		y := ss[3]
 
 		c.Description = fmt.Sprintf("Repairing mech #%d at tile %d%d", ss[1], x, y)
-		c.Actions = []Action{
-			pressKey(getUnitKey("mech", ss[1])),
-			pressKey("r"),
-			mouseGrid(x, y),
-			click(),
+		c.Actions = []commands.Action{
+			driver.PressKey(getUnitKey("mech", ss[1])),
+			driver.PressKey("r"),
+			driver.MouseGrid(x, y),
+			driver.Click(),
 		}
 	}
 
@@ -234,9 +227,9 @@ func Parse(t string) *Command {
 	if r := regexp.MustCompile("^info (on|off)$"); r.MatchString(t) {
 		state := r.FindStringSubmatch(t)[1]
 		c.Description = fmt.Sprintf("Turning info tooltip %s", state)
-		c.Actions = []Action{
+		c.Actions = []commands.Action{
 			func() {
-				toggleKey("control", state == "on")
+				driver.ToggleKey("control", state == "on")
 			},
 		}
 	}
@@ -246,9 +239,9 @@ func Parse(t string) *Command {
 	if r := regexp.MustCompile("^order (on|off)$"); r.MatchString(t) {
 		state := r.FindStringSubmatch(t)[1]
 		c.Description = fmt.Sprintf("Turning turn order tooltips %s", state)
-		c.Actions = []Action{
+		c.Actions = []commands.Action{
 			func() {
-				toggleKey("alt", state == "on")
+				driver.ToggleKey("alt", state == "on")
 			},
 		}
 	}
@@ -259,13 +252,13 @@ func Parse(t string) *Command {
 	// Moves the mouse from the top left to bottom right corner and around the grid. Used for offset calibration
 	if match, _ := regexp.MatchString("^calibrate$", t); match {
 		c.Description = "Calibrating"
-		c.Actions = []Action{
-			mouse(0, 0),
-			mouse(1280, 720),
-			mouseGrid("A", "1"),
-			mouseGrid("H", "1"),
-			mouseGrid("H", "8"),
-			mouseGrid("A", "8"),
+		c.Actions = []commands.Action{
+			driver.Mouse(0, 0),
+			driver.Mouse(1280, 720),
+			driver.MouseGrid("A", "1"),
+			driver.MouseGrid("H", "1"),
+			driver.MouseGrid("H", "8"),
+			driver.MouseGrid("A", "8"),
 		}
 	}
 

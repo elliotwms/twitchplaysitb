@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"sort"
+
+	"github.com/elliotwms/twitchplaysitb/commands"
 )
 
 type VoteResult struct {
-	Command *Command
+	Command *commands.Command
 	Votes   int
 	Users   []string
 }
@@ -25,7 +27,7 @@ func (v VoteResultList) Swap(i, j int) {
 	v[i], v[j] = v[j], v[i]
 }
 
-func tallyVotes(cq map[string]*Command) VoteResultList {
+func tallyVotes(cq map[string]*commands.Command) VoteResultList {
 	fmt.Printf("Processing %d commands...\n", len(cq))
 
 	results := make(map[string]VoteResult)

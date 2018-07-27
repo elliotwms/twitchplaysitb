@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
 	"strconv"
+	"time"
 
+	"github.com/elliotwms/twitchplaysitb/commands"
 	"github.com/gempir/go-twitch-irc"
 	"github.com/go-vgo/robotgo"
 )
@@ -51,7 +52,7 @@ func main() {
 
 	c := twitch.NewClient(username, token)
 
-	cq := make(map[string]*Command)
+	cq := make(map[string]*commands.Command)
 
 	go workCommands(cq, c, channel, pid)
 
@@ -66,7 +67,7 @@ func main() {
 	}
 }
 
-func handleMessage(c *twitch.Client, cq map[string]*Command) func(channel string, user twitch.User, message twitch.Message) {
+func handleMessage(c *twitch.Client, cq map[string]*commands.Command) func(channel string, user twitch.User, message twitch.Message) {
 	return func(channel string, user twitch.User, message twitch.Message) {
 		fmt.Printf("%s: %s\n", user.Username, message.Text)
 
@@ -79,7 +80,7 @@ func handleMessage(c *twitch.Client, cq map[string]*Command) func(channel string
 	}
 }
 
-func workCommands(cq map[string]*Command, c *twitch.Client, channel string, pid int32) {
+func workCommands(cq map[string]*commands.Command, c *twitch.Client, channel string, pid int32) {
 	for {
 		if ok, _ := robotgo.PidExists(pid); !ok {
 			break
