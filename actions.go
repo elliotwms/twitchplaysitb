@@ -71,21 +71,7 @@ func selectUnit(t string, n string) Action {
 	}
 
 	return func() {
-		robotgo.KeyTap(k)
-	}
-}
-
-// selectWeapon selects a weapon by number
-func selectWeapon(n string) Action {
-	return func() {
-		robotgo.KeyTap(n)
-	}
-}
-
-// repair hits the repair shortcut
-func repair() Action {
-	return func() {
-		robotgo.KeyTap("r") // Repair
+		pressKey(k)
 	}
 }
 

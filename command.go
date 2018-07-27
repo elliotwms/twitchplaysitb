@@ -189,7 +189,7 @@ func Parse(t string) *Command {
 
 		c.Description = fmt.Sprintf("Arm weapon #%s", ss[1])
 		c.Actions = []Action{
-			selectWeapon(ss[1]),
+			pressKey(ss[1]),
 		}
 	}
 
@@ -204,7 +204,7 @@ func Parse(t string) *Command {
 		c.Description = fmt.Sprintf("Attacking with %s unit #%s using weapon %s on tile %s%s", ss[1], ss[2], ss[3], x, y)
 		c.Actions = []Action{
 			selectUnit(ss[1], ss[2]),
-			selectWeapon(ss[3]),
+			pressKey(ss[3]),
 			mouseGrid(x, y),
 			click(),
 		}
@@ -221,7 +221,7 @@ func Parse(t string) *Command {
 		c.Description = fmt.Sprintf("Repairing mech #%d at tile %d%d", ss[1], x, y)
 		c.Actions = []Action{
 			selectUnit("mech", ss[1]),
-			repair(),
+			pressKey("r"),
 			mouseGrid(x, y),
 			click(),
 		}
