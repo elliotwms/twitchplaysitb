@@ -3,6 +3,9 @@ package commands
 import (
 	"crypto/md5"
 	"fmt"
+	"regexp"
+
+	"github.com/elliotwms/twitchplaysitb/drivers"
 )
 
 type Command struct {
@@ -12,6 +15,8 @@ type Command struct {
 }
 
 type Action func()
+type CommandBuilder func(d drivers.Driver, a []string) *Command
+type Dictionary map[*regexp.Regexp]CommandBuilder
 
 // GetHash hashes the command description (which should be unique depending on the command arguments)
 func (c *Command) GetHash() string {
