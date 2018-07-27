@@ -7,22 +7,18 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/go-vgo/robotgo"
 )
 
 type Command struct {
-	Text        string // The raw command input
-	Description string // The command description
-	Actions     []Action
+	Text        string   // The raw command input
+	Description string   // The command description
+	Actions     []Action // The actions to perform when executing the command
 }
 
 // GetHash hashes the command description (which should be unique depending on the command arguments)
 func (c *Command) GetHash() string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(c.Description)))
 }
-
-type Action func()
 
 func Parse(t string) *Command {
 	// lower case all commands to normalize them
@@ -46,9 +42,7 @@ func Parse(t string) *Command {
 	if match, _ := regexp.MatchString("^endturn$", t); match {
 		c.Description = "End turn"
 		c.Actions = []Action{
-			func() {
-				robotgo.KeyTap("space")
-			},
+			pressKey("space"),
 		}
 	}
 
@@ -56,9 +50,7 @@ func Parse(t string) *Command {
 	if match, _ := regexp.MatchString("^undo$", t); match {
 		c.Description = "Undo move"
 		c.Actions = []Action{
-			func() {
-				robotgo.KeyTap("shift")
-			},
+			pressKey("shift"),
 		}
 	}
 
@@ -66,9 +58,7 @@ func Parse(t string) *Command {
 	if match, _ := regexp.MatchString("^reset$", t); match {
 		c.Description = "Reset turn"
 		c.Actions = []Action{
-			func() {
-				robotgo.KeyTap("backspace")
-			},
+			pressKey("backspace"),
 		}
 	}
 
@@ -76,9 +66,7 @@ func Parse(t string) *Command {
 	if match, _ := regexp.MatchString("^deselect|disarm$", t); match {
 		c.Description = "Deselect weapon"
 		c.Actions = []Action{
-			func() {
-				robotgo.KeyTap("q")
-			},
+			pressKey("q"),
 		}
 	}
 
@@ -86,9 +74,7 @@ func Parse(t string) *Command {
 	if match, _ := regexp.MatchString("^next$", t); match {
 		c.Description = "Select next unit"
 		c.Actions = []Action{
-			func() {
-				robotgo.KeyTap("tab")
-			},
+			pressKey("tab"),
 		}
 	}
 
@@ -102,7 +88,7 @@ func Parse(t string) *Command {
 		c.Actions = []Action{
 			func() {
 				for i := 0; i < count; i++ {
-					robotgo.KeyTap("tab")
+					pressKey("tab")()
 					time.Sleep(1 * time.Second)
 				}
 			},
@@ -246,17 +232,11 @@ func Parse(t string) *Command {
 	// Toggle info
 	// Toggle the info tooltip
 	if r := regexp.MustCompile("^info (on|off)$"); r.MatchString(t) {
-		ss := r.FindStringSubmatch(t)
-
-		state := "up"
-		if ss[1] == "on" {
-			state = "down"
-		}
-
-		c.Description = fmt.Sprintf("Turning info tooltip %s", ss[1])
+		state := r.FindStringSubmatch(t)[1]
+		c.Description = fmt.Sprintf("Turning info tooltip %s", state)
 		c.Actions = []Action{
 			func() {
-				robotgo.KeyToggle("control", state)
+				toggleKey("control", state == "on")
 			},
 		}
 	}
@@ -264,18 +244,11 @@ func Parse(t string) *Command {
 	// Toggle turn order
 	// Toggle the turn order tooltips
 	if r := regexp.MustCompile("^order (on|off)$"); r.MatchString(t) {
-
-		ss := r.FindStringSubmatch(t)
-
-		state := "up"
-		if ss[1] == "on" {
-			state = "down"
-		}
-
-		c.Description = fmt.Sprintf("Turning turn order tooltips %s", ss[1])
+		state := r.FindStringSubmatch(t)[1]
+		c.Description = fmt.Sprintf("Turning turn order tooltips %s", state)
 		c.Actions = []Action{
 			func() {
-				robotgo.KeyToggle("alt", state)
+				toggleKey("alt", state == "on")
 			},
 		}
 	}
@@ -301,89 +274,4 @@ func Parse(t string) *Command {
 	}
 
 	return c
-}
-
-// Commands
-// These commands wrap the action into a callable zero-argument function
-
-// click clicks the mouse
-func click() func() {
-	return func() {
-		robotgo.Click()
-	}
-}
-
-// mouse moves the mouse to a given set of pixel coordinates accounting for the x and y offset
-func mouse(x int, y int) func() {
-	// Prevent moving out of bounds on the x axis
-	if x > gameWidth {
-		x = gameWidth - 100 // with a safety buffer of 100px
-	}
-
-	// Do the same on the y axis
-	if y > gameHeight {
-		y = gameHeight - 100
-	}
-
-	return func() {
-		robotgo.MoveMouseSmooth(x+xOffset, y+yOffset)
-	}
-}
-
-// mouseGrid moves the mouse to a given set of map coordinates
-func mouseGrid(a string, n string) func() {
-	x, y := GetCoordinates(a, n)
-
-	return mouse(x, y)
-}
-
-// selectUnit selects a unit by type and number
-func selectUnit(t string, n string) func() {
-	k := "a"
-
-	switch t {
-	case "mech":
-		switch n {
-		case "1":
-			k = "a"
-		case "2":
-			k = "s"
-		case "3":
-			k = "d"
-		}
-	case "deployed":
-		switch n {
-		case "1":
-			k = "f"
-		case "2":
-			k = "g"
-		case "3":
-			k = "h"
-		}
-	case "mission":
-		switch n {
-		case "1":
-			k = "z"
-		case "2":
-			k = "x"
-		}
-	}
-
-	return func() {
-		robotgo.KeyTap(k)
-	}
-}
-
-// selectWeapon selects a weapon by number
-func selectWeapon(n string) func() {
-	return func() {
-		robotgo.KeyTap(n)
-	}
-}
-
-// repair hits the repair shortcut
-func repair() func() {
-	return func() {
-		robotgo.KeyTap("r") // Repair
-	}
 }
