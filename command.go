@@ -23,39 +23,32 @@ func (c *Command) GetHash() string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(c.Description)))
 }
 
-type Action struct {
-	Do func()
-}
+type Action func()
 
 func Parse(t string) *Command {
+	// lower case all commands to normalize them
+	t = strings.ToLower(t)
+
 	c := &Command{
 		Text: t,
 	}
-
-	t = strings.ToLower(t) // lower case all commands
 
 	// Simple commands
 
 	// Click
 	if match, _ := regexp.MatchString("^click$", t); match {
 		c.Description = "Click the mouse"
-
 		c.Actions = []Action{
-			{
-				Do: click(),
-			},
+			click(),
 		}
 	}
 
 	// End turn
 	if match, _ := regexp.MatchString("^endturn$", t); match {
 		c.Description = "End turn"
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					robotgo.KeyTap("space")
-				},
+			func() {
+				robotgo.KeyTap("space")
 			},
 		}
 	}
@@ -63,12 +56,9 @@ func Parse(t string) *Command {
 	// Undo move
 	if match, _ := regexp.MatchString("^undo$", t); match {
 		c.Description = "Undo move"
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					robotgo.KeyTap("shift")
-				},
+			func() {
+				robotgo.KeyTap("shift")
 			},
 		}
 	}
@@ -76,12 +66,9 @@ func Parse(t string) *Command {
 	// Reset turn
 	if match, _ := regexp.MatchString("^reset$", t); match {
 		c.Description = "Reset turn"
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					robotgo.KeyTap("backspace")
-				},
+			func() {
+				robotgo.KeyTap("backspace")
 			},
 		}
 	}
@@ -89,12 +76,9 @@ func Parse(t string) *Command {
 	// Deselect weapon
 	if match, _ := regexp.MatchString("^deselect|disarm$", t); match {
 		c.Description = "Deselect weapon"
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					robotgo.KeyTap("q")
-				},
+			func() {
+				robotgo.KeyTap("q")
 			},
 		}
 	}
@@ -102,12 +86,9 @@ func Parse(t string) *Command {
 	// Next unit
 	if match, _ := regexp.MatchString("^next$", t); match {
 		c.Description = "Select next unit"
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					robotgo.KeyTap("tab")
-				},
+			func() {
+				robotgo.KeyTap("tab")
 			},
 		}
 	}
@@ -119,15 +100,12 @@ func Parse(t string) *Command {
 		count, _ := strconv.Atoi(ss[1])
 
 		c.Description = fmt.Sprintf("Select next unit #%d", count)
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					for i := 0; i < count; i++ {
-						robotgo.KeyTap("tab")
-						time.Sleep(1 * time.Second)
-					}
-				},
+			func() {
+				for i := 0; i < count; i++ {
+					robotgo.KeyTap("tab")
+					time.Sleep(1 * time.Second)
+				}
 			},
 		}
 	}
@@ -143,11 +121,8 @@ func Parse(t string) *Command {
 		y, _ := strconv.Atoi(ss[2])
 
 		c.Description = fmt.Sprintf("Move the mouse to x: %d, y: %d", x, y)
-
 		c.Actions = []Action{
-			{
-				Do: mouse(x, y),
-			},
+			mouse(x, y),
 		}
 	}
 
@@ -160,14 +135,9 @@ func Parse(t string) *Command {
 		y, _ := strconv.Atoi(ss[2])
 
 		c.Description = fmt.Sprintf("Click the mouse at x: %d, y: %d", x, y)
-
 		c.Actions = []Action{
-			{
-				Do: mouse(x, y),
-			},
-			{
-				Do: click(),
-			},
+			mouse(x, y),
+			click(),
 		}
 	}
 
@@ -180,11 +150,8 @@ func Parse(t string) *Command {
 		y := ss[2]
 
 		c.Description = fmt.Sprintf("Move the mouse to tile %s%s", x, y)
-
 		c.Actions = []Action{
-			{
-				Do: mouseGrid(x, y),
-			},
+			mouseGrid(x, y),
 		}
 	}
 
@@ -197,14 +164,9 @@ func Parse(t string) *Command {
 		y := ss[2]
 
 		c.Description = fmt.Sprintf("Click the mouse at tile %s%s", x, y)
-
 		c.Actions = []Action{
-			{
-				Do: mouseGrid(strings.ToUpper(ss[1]), ss[2]),
-			},
-			{
-				Do: click(),
-			},
+			mouseGrid(strings.ToUpper(ss[1]), ss[2]),
+			click(),
 		}
 	}
 
@@ -214,11 +176,8 @@ func Parse(t string) *Command {
 		ss := r.FindStringSubmatch(t)
 
 		c.Description = fmt.Sprintf("Select %s unit #%s", ss[1], ss[2])
-
 		c.Actions = []Action{
-			{
-				Do: selectUnit(ss[1], ss[2]),
-			},
+			selectUnit(ss[1], ss[2]),
 		}
 	}
 
@@ -231,17 +190,10 @@ func Parse(t string) *Command {
 		y := ss[4]
 
 		c.Description = fmt.Sprintf("Move %s unit #%s to %s%s", ss[1], ss[2], x, y)
-
 		c.Actions = []Action{
-			{
-				Do: selectUnit(ss[1], ss[2]),
-			},
-			{
-				Do: mouseGrid(x, y),
-			},
-			{
-				Do: click(),
-			},
+			selectUnit(ss[1], ss[2]),
+			mouseGrid(x, y),
+			click(),
 		}
 	}
 
@@ -251,11 +203,8 @@ func Parse(t string) *Command {
 		ss := r.FindStringSubmatch(t)
 
 		c.Description = fmt.Sprintf("Arm weapon #%s", ss[1])
-
 		c.Actions = []Action{
-			{
-				Do: selectWeapon(ss[1]),
-			},
+			selectWeapon(ss[1]),
 		}
 	}
 
@@ -268,20 +217,11 @@ func Parse(t string) *Command {
 		y := ss[5]
 
 		c.Description = fmt.Sprintf("Attacking with %s unit #%s using weapon %s on tile %s%s", ss[1], ss[2], ss[3], x, y)
-
 		c.Actions = []Action{
-			{
-				Do: selectUnit(ss[1], ss[2]),
-			},
-			{
-				Do: selectWeapon(ss[3]),
-			},
-			{
-				Do: mouseGrid(x, y),
-			},
-			{
-				Do: click(),
-			},
+			selectUnit(ss[1], ss[2]),
+			selectWeapon(ss[3]),
+			mouseGrid(x, y),
+			click(),
 		}
 	}
 
@@ -294,20 +234,11 @@ func Parse(t string) *Command {
 		y := ss[3]
 
 		c.Description = fmt.Sprintf("Repairing mech #%d at tile %d%d", ss[1], x, y)
-
 		c.Actions = []Action{
-			{
-				Do: selectUnit("mech", ss[1]),
-			},
-			{
-				Do: repair(),
-			},
-			{
-				Do: mouseGrid(x, y),
-			},
-			{
-				Do: click(),
-			},
+			selectUnit("mech", ss[1]),
+			repair(),
+			mouseGrid(x, y),
+			click(),
 		}
 	}
 
@@ -319,18 +250,14 @@ func Parse(t string) *Command {
 		ss := r.FindStringSubmatch(t)
 
 		state := "up"
-
 		if ss[1] == "on" {
 			state = "down"
 		}
 
 		c.Description = fmt.Sprintf("Turning info tooltip %s", ss[1])
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					robotgo.KeyToggle("control", state)
-				},
+			func() {
+				robotgo.KeyToggle("control", state)
 			},
 		}
 	}
@@ -342,18 +269,14 @@ func Parse(t string) *Command {
 		ss := r.FindStringSubmatch(t)
 
 		state := "up"
-
 		if ss[1] == "on" {
 			state = "down"
 		}
 
 		c.Description = fmt.Sprintf("Turning turn order tooltips %s", ss[1])
-
 		c.Actions = []Action{
-			{
-				Do: func() {
-					robotgo.KeyToggle("alt", state)
-				},
+			func() {
+				robotgo.KeyToggle("alt", state)
 			},
 		}
 	}
@@ -364,26 +287,13 @@ func Parse(t string) *Command {
 	// Moves the mouse from the top left to bottom right corner and around the grid. Used for offset calibration
 	if match, _ := regexp.MatchString("^calibrate$", t); match {
 		c.Description = "Calibrating"
-
 		c.Actions = []Action{
-			{
-				Do: mouse(0, 0),
-			},
-			{
-				Do: mouse(1280, 720),
-			},
-			{
-				Do: mouseGrid("A", "1"),
-			},
-			{
-				Do: mouseGrid("H", "1"),
-			},
-			{
-				Do: mouseGrid("H", "8"),
-			},
-			{
-				Do: mouseGrid("A", "8"),
-			},
+			mouse(0, 0),
+			mouse(1280, 720),
+			mouseGrid("A", "1"),
+			mouseGrid("H", "1"),
+			mouseGrid("H", "8"),
+			mouseGrid("A", "8"),
 		}
 	}
 

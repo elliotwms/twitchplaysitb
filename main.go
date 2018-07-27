@@ -104,7 +104,7 @@ func workCommands(cq map[string]*Command, c *twitch.Client, channel string, pid 
 			c.Say(channel, fmt.Sprintf("Result: %s\n", result.Command.Description))
 
 			for _, action := range result.Command.Actions {
-				action.Do()
+				action()
 			}
 
 		} else {
